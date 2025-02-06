@@ -17,3 +17,13 @@ def student_list(request):
     serializer = StudentSerializer(students, many=True)
     #return json
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+@api_view(["POST"])
+def student_create(request):
+    serializer = StudentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
