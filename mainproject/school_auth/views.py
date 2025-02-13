@@ -32,11 +32,14 @@ def student_create(request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+
 @api_view(["GET"])
 def teacher_list(request):
     teachers = Teacher.objects.all()
     serializer = TeacherSerializer(teachers, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 @api_view(["POST"])
 def teacher_create(request):
@@ -44,3 +47,18 @@ def teacher_create(request):
     if serializer.is_valid():
         serializer.save()
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+@api_view(["POST"])
+def student_post(request):
+    email = request.data["email"]
+    password = request.data["password"]
+
+    student = Student.objects.filter(email=email).first()
+
+    serializer = StudentSerializer(student)
+
+    if serializer.is_valid() and student.password == password:
+
+        return Response("success")
