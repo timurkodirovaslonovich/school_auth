@@ -6,5 +6,5 @@ urlpatterns = [
     path('studentadd/', student_create),
     path('teachers/', teacher_list),
     path('teacheradd/', teacher_create),
-    path('login/', student_post)
+    path('login/', login)
 ]

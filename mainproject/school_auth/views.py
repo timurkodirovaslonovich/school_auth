@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework import views, status
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Student, Teacher
 from .serializers import StudentSerializer, TeacherSerializer
@@ -12,7 +13,6 @@ from .serializers import StudentSerializer, TeacherSerializer
 
 @api_view(["GET"])
 def student_list(request):
-
     #get all the students
     students = Student.objects.all()
     #serialize them
@@ -51,14 +51,16 @@ def teacher_create(request):
 
 
 @api_view(["POST"])
-def student_post(request):
+def login(request):
     email = request.data["email"]
     password = request.data["password"]
 
     student = Student.objects.filter(email=email).first()
+    teacher = Teacher.objects.filter(email=email).first()
 
-    serializer = StudentSerializer(student)
 
-    if serializer.is_valid() and student.password == password:
-
-        return Response("success")
+    if student and password == student.password:
+        return redirect('http://127.0.0.1:8000/api/v1/students/')
+        #return Response(serializer.data, status=status.HTTP_201_CREATED)
+    elif teacher and password == teacher.password:
+        return redirect('http://127.0.0.1:8000/api/v1/teachers/')
