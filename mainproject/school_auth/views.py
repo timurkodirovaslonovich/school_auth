@@ -3,12 +3,41 @@ from rest_framework import views, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from .permissions import *
 from .models import CustomUser
-from .serializers import CustomUserSerializer
+from .serializers import CustomUserSerializer, CustomTokenObtainPairSerializer
 
 
 # Create your views here.
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_data = CustomTokenObtainPairSerializer
+
+
+@api_view(['POST'])
+def register_user(request):
+    username = request.data['username']
+    password = request.data['password']
+    email = request.data['email']
+    role = request.data['role']
+
+    if not username or not password or not email or not role:
+        return Response({'message': 'Missing username or password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if CustomUser.objects.filter(username=username).exists():
+        return Response({'message': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = CustomUser.objects.create_user(username, email, password)
+    user.role = role
+    user.save()
+    refresh = RefreshToken.for_user(user)
+
+    return Response({'token': str(refresh.access_token)})
+
+
 
 
 @api_view(["POST"])
@@ -47,29 +76,11 @@ def teacher_list(request):
 
 
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated, IsSuperUser])
-def student_create(request):
-
-    data = request.data
-    data['role'] = 'student'
-    serializer = CustomUserSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
-    return redirect('http://127.0.0.1:8000/api/v1/students/')
 
 
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated, IsSuperUser])
-def teacher_create(request):
-    data = request.data
-    data['role'] = 'teacher'
-    serializer = CustomUserSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
 
-    return redirect('http://127.0.0.1:8000/api/v1/teachers/')
+
 
 
 

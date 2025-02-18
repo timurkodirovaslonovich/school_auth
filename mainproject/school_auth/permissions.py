@@ -12,7 +12,7 @@ class IsTeacherOrSuperUser(BasePermission):
         # if not request.user.is_authenticated:
         #     return False  # If the user is not authenticated, deny access
         #
-        if request.user.is_authenticated or request.user.role == 'teacher':
+        if request.user.is_authenticated and request.user.role == 'teacher':
             return True
 
         # # Allow access if the user is a teacher or superuser
