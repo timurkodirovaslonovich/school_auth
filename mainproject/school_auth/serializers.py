@@ -1,13 +1,15 @@
 from rest_framework import serializers
-from .models import Student, Teacher
+from .models import CustomUser
 
-class StudentSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Student
-        fields = '__all__'
+        model = CustomUser
+        fields = ('id', 'username', 'email', 'password', 'role')
 
 
-class TeacherSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Teacher
-        fields = '__all__'
+    def create(self, validated_data):
+        return CustomUser.objects.create_user(**validated_data)
+
+
+
+
